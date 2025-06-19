@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 
 interface MyColorPickerProps {
     initialColor: string;
+    onColorChange: (color: string) => void;
 }
 
-const MyColorPicker: React.FC<MyColorPickerProps> = ({ initialColor }) => {
+const MyColorPicker: React.FC<MyColorPickerProps> = ({ initialColor, onColorChange }) => {
     const [color, setColor] = useState(initialColor);
 
     useEffect(() => {
@@ -14,8 +15,7 @@ const MyColorPicker: React.FC<MyColorPickerProps> = ({ initialColor }) => {
 
     const handleChange: ColorChangeHandler = (newColor) => {
         setColor(newColor.hex);
-        console.log('wybrany kolor HEX', newColor.hex);
-        console.log('wybrany kolor RGB', newColor.rgb);
+        onColorChange(newColor.hex);
     }
 
     return(
