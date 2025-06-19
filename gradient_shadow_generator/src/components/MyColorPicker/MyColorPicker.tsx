@@ -9,10 +9,13 @@ interface MyColorPickerProps {
 const MyColorPicker: React.FC<MyColorPickerProps> = ({ initialColor, onColorChange }) => {
     const [color, setColor] = useState(initialColor);
 
+    // Przypisanie koloru i sprawdzenie czy został on zmieniony
     useEffect(() => {
         setColor(initialColor);
     }, [initialColor]);
 
+
+    // Zmiana koloru po wybraniu go z "pobiernika"
     const handleChange: ColorChangeHandler = (newColor) => {
         setColor(newColor.hex);
         onColorChange(newColor.hex);

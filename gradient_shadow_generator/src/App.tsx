@@ -14,6 +14,7 @@ function App() {
   const [button2Color, setButton2Color] = useState<string>('#0000FF');
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
 
+  // Przypisywanie koloru dla "pobiernika"
   const handleColorPickerChange = (newColor: string) => {
     if(activeButton === 'button1') {
       setButton1Color(newColor);
@@ -22,16 +23,19 @@ function App() {
     }
   };
 
+  // Funkcja służąca do przypisania id po kliknięciu w dany przycisk
   const handleColorBarButtonClick = (buttonId: ActiveButton) => {
     setActiveButton(buttonId);
   };
 
+  // Wyświetlanie koloru w "pobierniku" dla danego przycisku
   const initialColorForPicker = activeButton === 'button1'
     ? button1Color
     : activeButton === 'button2'
       ? button2Color 
-      : '#CCCCCC'
+      : '#CCCCCC' // Domyślny kolor
 
+  // Domyślny kontener
   return (
     <div className="App">
       <MyColorPicker 

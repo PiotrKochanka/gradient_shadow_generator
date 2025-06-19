@@ -12,7 +12,6 @@ interface ColorBarProps {
 
 const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId }) => {
 
-
     return(
         <div>
             <button 
