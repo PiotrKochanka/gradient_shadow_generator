@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import MyColorPicker from './components/MyColorPicker/MyColorPicker';
 import ColorBar from './components/ColorBar/ColorBar';
+import InclinedWheel from './components/InclinedWheel/InclinedWheel';
 
 type ActiveButton = 'button1' | 'button2' | null;
 
@@ -13,6 +14,7 @@ function App() {
   const [button1Color, setButton1Color] = useState<string>('#808080');
   const [button2Color, setButton2Color] = useState<string>('#0000FF');
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
+  const [currentNumber, setCurrentNumber] = useState<number>(90);
 
   // Przypisywanie koloru dla "pobiernika"
   const handleColorPickerChange = (newColor: string) => {
@@ -35,6 +37,10 @@ function App() {
       ? button2Color 
       : '#CCCCCC' // Domyślny kolor
 
+  const handleNumberUpdate = (newNumber: number) => {
+      setCurrentNumber(newNumber);
+  };
+
   // Domyślny kontener
   return (
     <div className="App">
@@ -47,6 +53,10 @@ function App() {
         button2Color={button2Color}
         onButtonClick={handleColorBarButtonClick}
         activeButtonId={activeButton}
+      />
+      <InclinedWheel 
+        initialNumber={currentNumber}
+        onNumberChange={handleNumberUpdate}
       />
     </div>
   );
