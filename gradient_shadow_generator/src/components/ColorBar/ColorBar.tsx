@@ -9,9 +9,10 @@ interface ColorBarProps {
     button2Color: string;
     onButtonClick: (buttonId: ActiveButton) => void;
     activeButtonId: ActiveButton;
+    currentPosition: number;
 }
 
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition }) => {
 
     return(
         <div className={`${styles.color_bar_container}`}>
@@ -36,7 +37,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             <div 
                 className={`${styles.color_bar_main}`}
                 style={{
-                    background: `linear-gradient(90deg, ${button1Color} 0%, ${button2Color} 100%)`
+                    background: `linear-gradient(${currentPosition}deg, ${button1Color} 0%, ${button2Color} 100%)`
                 }}
             >
 

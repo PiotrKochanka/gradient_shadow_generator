@@ -53,6 +53,7 @@ function App() {
         button2Color={button2Color}
         onButtonClick={handleColorBarButtonClick}
         activeButtonId={activeButton}
+        currentPosition={currentNumber}
       />
       <InclinedWheel 
         initialNumber={currentNumber}
