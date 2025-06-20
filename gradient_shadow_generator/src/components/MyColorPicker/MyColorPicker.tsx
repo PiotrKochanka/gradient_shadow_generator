@@ -15,16 +15,20 @@ const MyColorPicker: React.FC<MyColorPickerProps> = ({ initialColor, onColorChan
     }, [initialColor]);
 
 
-    // Zmiana koloru po wybraniu go z "pobiernika"
+    // Zmiana koloru po wybraniu go z "pobiernika" RGBA
     const handleChange: ColorChangeHandler = (newColor) => {
-        setColor(newColor.hex);
-        onColorChange(newColor.hex);
+        const { r, g, b, a } = newColor.rgb;
+
+        const rgbaColor = `rgba(${r}, ${g}, ${b}, ${a !== undefined ? a : 1})`;
+        
+        setColor(rgbaColor);
+        onColorChange(rgbaColor);
     }
+
 
     return(
         <div>
             <SketchPicker color={color} onChange={handleChange} />
-            <p>Wybrany kolor (HEX): {color}</p>
         </div>
     );
 }
