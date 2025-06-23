@@ -72,22 +72,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
     return(
         <div className={`${styles.color_bar_container}`}>
             <div className={`${styles.color_bar_buttons}`}>
-                <button 
-                    style={{
-                        backgroundColor: button1Color
-                    }}
-                    onClick={() => onButtonClick('button1')}
-                >
-                    kolor #1
-                </button>
-                <button 
-                    style={{
-                        backgroundColor: button2Color
-                    }}
-                    onClick={() => onButtonClick('button2')}
-                >
-                    kolor #2
-                </button>
+            
             </div>
             <div 
                 ref={divRef}
@@ -99,7 +84,22 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                 onMouseLeave={handleMouseLeave}
                 onClick={handleClick}
             >
-
+                <button 
+                    style={{
+                        backgroundColor: button1Color
+                    }}
+                    onClick={() => onButtonClick('button1')}
+                    className={`${styles.button_1}`}
+                >
+                </button>
+                <button 
+                    style={{
+                        backgroundColor: button2Color
+                    }}
+                    onClick={() => onButtonClick('button2')}
+                    className={`${styles.button_2}`}
+                >
+                </button>
             </div>
         </div>
     );

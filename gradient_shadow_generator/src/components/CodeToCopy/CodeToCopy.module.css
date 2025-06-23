@@ -1,0 +1,8 @@
+.code_bar{
+    border: 1px solid black;
+    width: 400px;
+    height: 200px;
+    margin: 0 auto;
+    padding: 8px 12px;
+    text-align: left;
+}

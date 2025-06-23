@@ -60,6 +60,7 @@ function App() {
           activeButtonId={activeButton}
           currentPosition={currentNumber}
         />
+        <br />
         <InclinedWheel 
           initialNumber={currentNumber}
           onNumberChange={handleNumberUpdate}

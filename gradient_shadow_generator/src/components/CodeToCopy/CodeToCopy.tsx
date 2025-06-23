@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './CodeToCopy.module.css';
 
 interface ColorBarProps {
     button1Color: string;
@@ -8,9 +9,9 @@ interface ColorBarProps {
 
 const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition }) => {
     return(
-        <div>
+        <div className={`${styles.code_container}`}>
             Kod do skopiowania
-            <div>
+            <div className={`${styles.code_bar}`}>
                 <span>
                     background: linear-gradient({currentPosition}deg, {button1Color} 0%, {button2Color} 100%);
                 </span>

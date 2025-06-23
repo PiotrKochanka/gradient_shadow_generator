@@ -3,4 +3,22 @@
     width: 800px;
     border: 2px solid black;
     margin: 24px auto 24px auto;
+    position: relative;
+}
+.color_bar_main > button{
+    border: 2px solid rgb(117, 117, 117);
+}
+.color_bar_main > .button_1{
+    position: absolute;
+    left: 0px;
+    height: 60px;
+    width: 16px;
+    margin-top: -6px;
+}
+.color_bar_main > .button_2{
+    position: absolute;
+    right: 0px;
+    height: 60px;
+    width: 16px;
+    margin-top: -6px;
 }
