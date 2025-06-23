@@ -3,6 +3,7 @@ import './App.css';
 import MyColorPicker from './components/MyColorPicker/MyColorPicker';
 import ColorBar from './components/ColorBar/ColorBar';
 import InclinedWheel from './components/InclinedWheel/InclinedWheel';
+import CodeToCopy from './components/CodeToCopy/CodeToCopy';
 
 type ActiveButton = 'button1' | 'button2' | null;
 
@@ -45,7 +46,7 @@ function App() {
   return (
     <div className="App">
       <div className="menu">
-        
+
       </div>
       <div className="content">
         <MyColorPicker 
@@ -62,6 +63,11 @@ function App() {
         <InclinedWheel 
           initialNumber={currentNumber}
           onNumberChange={handleNumberUpdate}
+        />
+        <CodeToCopy 
+          button1Color={button1Color}
+          button2Color={button2Color}
+          currentPosition={currentNumber}
         />
       </div>
     </div>
