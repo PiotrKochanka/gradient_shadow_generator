@@ -1,6 +1,6 @@
 .color_bar_main{
-    height: 40px;
+    height: 48px;
+    width: 800px;
     border: 2px solid black;
-    width: 30vw;
-    margin: 24px auto 0px auto;
+    margin: 24px auto 24px auto;
 }

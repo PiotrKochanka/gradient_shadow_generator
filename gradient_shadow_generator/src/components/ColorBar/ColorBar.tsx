@@ -1,5 +1,4 @@
-import React from 'react';
-import { Color } from 'react-color';
+import React, { useState, MouseEvent, useRef } from 'react';
 import styles from './ColorBar.module.css';
 
 type ActiveButton = 'button1' | 'button2' | null;
@@ -12,7 +11,52 @@ interface ColorBarProps {
     currentPosition: number;
 }
 
+interface MousePosition {
+    x: number;
+    y: number;
+}
+
 const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition }) => {
+    const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
+    const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
+    const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
+    const divRef = useRef<HTMLDivElement>(null);
+    const [cachedDivRect, setCachedDivRect] = useState<DOMRect | null>(null);
+
+    const handleMouseMove = (event: MouseEvent) => {
+        // Pozycja myszki względem przeglądarki
+        setMousePositionWindow({
+            x: event.clientX,
+            y: event.clientY,
+        });
+
+        // Pozycja myszki względem div'a
+        if(divRef.current) {
+            const rect = divRef.current.getBoundingClientRect();
+            setMousePositionDiv({
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top,
+            });
+        }
+    }
+    
+    const handleMouseLeave = () => {
+        setMousePositionWindow({ x: 0, y: 0 });
+        setMousePositionDiv({ x: 0, y: 0 });
+    }
+
+    const handleClick = (event: MouseEvent) => {
+        if(divRef.current) {
+            const rect = divRef.current.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+
+            setClickPositionDiv({ x: clickX, y: clickY });
+            console.log(`kliknięto: x: ${clickX}`);
+        } else {
+            console.log("divRef.current JEST NULL!");
+        }
+    }
 
     return(
         <div className={`${styles.color_bar_container}`}>
@@ -35,10 +79,14 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                 </button>
             </div>
             <div 
+                ref={divRef}
                 className={`${styles.color_bar_main}`}
                 style={{
                     background: `linear-gradient(${currentPosition}deg, ${button1Color} 0%, ${button2Color} 100%)`
                 }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleClick}
             >
 
             </div>
