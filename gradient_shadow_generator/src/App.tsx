@@ -44,21 +44,26 @@ function App() {
   // Domyślny kontener
   return (
     <div className="App">
-      <MyColorPicker 
-        initialColor={initialColorForPicker}
-        onColorChange={handleColorPickerChange}
-      />
-      <ColorBar 
-        button1Color={button1Color}
-        button2Color={button2Color}
-        onButtonClick={handleColorBarButtonClick}
-        activeButtonId={activeButton}
-        currentPosition={currentNumber}
-      />
-      <InclinedWheel 
-        initialNumber={currentNumber}
-        onNumberChange={handleNumberUpdate}
-      />
+      <div className="menu">
+        
+      </div>
+      <div className="content">
+        <MyColorPicker 
+          initialColor={initialColorForPicker}
+          onColorChange={handleColorPickerChange}
+        />
+        <ColorBar 
+          button1Color={button1Color}
+          button2Color={button2Color}
+          onButtonClick={handleColorBarButtonClick}
+          activeButtonId={activeButton}
+          currentPosition={currentNumber}
+        />
+        <InclinedWheel 
+          initialNumber={currentNumber}
+          onNumberChange={handleNumberUpdate}
+        />
+      </div>
     </div>
   );
 }

@@ -16,12 +16,17 @@ interface MousePosition {
     y: number;
 }
 
+interface ClickPositionPercent {
+    xPercent: number;
+    yPercent: number;
+}
+
 const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
     const divRef = useRef<HTMLDivElement>(null);
-    const [cachedDivRect, setCachedDivRect] = useState<DOMRect | null>(null);
+    const [clickPositionPercent, setClickPositionPercent] = useState<ClickPositionPercent>({ xPercent: 0, yPercent: 0 });
 
     const handleMouseMove = (event: MouseEvent) => {
         // Pozycja myszki względem przeglądarki
@@ -52,7 +57,13 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             const clickY = event.clientY - rect.top;
 
             setClickPositionDiv({ x: clickX, y: clickY });
+
+            // OBLICZENIE POZYCJI W PROCENTACH
+            const clickXPercent = (clickX / rect.width) * 100;
+            const clickYPercent = (clickY / rect.height) * 100;
+
             console.log(`kliknięto: x: ${clickX}`);
+            console.log(`Kliknięto w diva (%): X: ${clickXPercent.toFixed(2)}%`);
         } else {
             console.log("divRef.current JEST NULL!");
         }
