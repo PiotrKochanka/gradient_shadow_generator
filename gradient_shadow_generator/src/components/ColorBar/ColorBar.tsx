@@ -26,6 +26,8 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
     const divRef = useRef<HTMLDivElement>(null);
     const [clickPositionPercent, setClickPositionPercent] = useState<ClickPositionPercent>({ xPercent: 0 });
+    const [dotYPosition, setDotYPosition] = useState<number | null>(null);
+    const [showDot, setShowDot] = useState<boolean>(false);
 
     const handleMouseMove = (event: MouseEvent) => {
         // Pozycja myszki względem przeglądarki
@@ -57,6 +59,9 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
 
             setClickPositionDiv({ x: clickX, y: clickY });
 
+            setDotYPosition(clickX);
+            setShowDot(true);
+
             // OBLICZENIE POZYCJI W PROCENTACH
             const clickXPercent = (clickX / rect.width) * 100;
 
@@ -68,6 +73,12 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             console.log("divRef.current JEST NULL!");
         }
     }
+
+    const newButtonStyle: React.CSSProperties = {
+        position: 'absolute',
+        transform: 'translateX(-50%)',
+        left: dotYPosition !== null ? `${dotYPosition}px` : '0',
+    };
 
     return(
         <div className={`${styles.color_bar_container}`}>
@@ -89,7 +100,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                         backgroundColor: button1Color
                     }}
                     onClick={() => onButtonClick('button1')}
-                    className={`${styles.button_1}`}
+                    className={`${styles.button_1} ${styles.button}`}
                 >
                 </button>
                 <button 
@@ -97,9 +108,12 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                         backgroundColor: button2Color
                     }}
                     onClick={() => onButtonClick('button2')}
-                    className={`${styles.button_2}`}
+                    className={`${styles.button_2} ${styles.button}`}
                 >
                 </button>
+                {showDot && dotYPosition !== null && (
+                    <button style={newButtonStyle} className={`${styles.button}`}></button>
+                )}
             </div>
         </div>
     );
