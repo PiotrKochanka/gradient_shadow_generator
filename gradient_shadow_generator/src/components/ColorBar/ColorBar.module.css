@@ -1,24 +1,33 @@
-.color_bar_main{
+.color_bar_container{
+    margin: 24px auto 24px auto;
+    position: relative;
     height: 48px;
     width: 800px;
     border: 2px solid black;
-    margin: 24px auto 24px auto;
-    position: relative;
 }
-.color_bar_main > button{
-    border: 2px solid rgb(117, 117, 117);
-    z-index: 2;
+.color_bar_main{
+    height: 48px;
+    width: 800px;
 }
 .color_bar_main > .button{
     height: 60px;
     width: 16px;
     margin-top: -6px;
 }
-.color_bar_main > .button_1{
+.color_bar_container > button{
+    border: 2px solid rgb(117, 117, 117);
+    z-index: 2;
+}
+.color_bar_container > .button{
+    height: 60px;
+    width: 16px;
+    margin-top: -6px;
+}
+.color_bar_container > .button_1{
     position: absolute;
     left: 0px;
 }
-.color_bar_main > .button_2{
+.color_bar_container > .button_2{
     position: absolute;
     right: 0px;
 }

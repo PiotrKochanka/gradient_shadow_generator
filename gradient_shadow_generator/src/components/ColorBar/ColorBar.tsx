@@ -16,6 +16,13 @@ interface MousePosition {
     y: number;
 }
 
+interface Button {
+  id: string; // Unikalne ID, potrzebne dla klucza React (key prop)
+  x: number;   // Pozycja X kropki
+  // Jeśli chcesz też pozycjonować na Y w przyszłości:
+  // y: number;
+}
+
 interface ClickPositionPercent {
     xPercent: number;
 }
@@ -26,8 +33,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
     const divRef = useRef<HTMLDivElement>(null);
     const [clickPositionPercent, setClickPositionPercent] = useState<ClickPositionPercent>({ xPercent: 0 });
-    const [dotYPosition, setDotYPosition] = useState<number | null>(null);
-    const [showDot, setShowDot] = useState<boolean>(false);
+    const [buttons, setButtons] = useState<Button[]>([]);
 
     const handleMouseMove = (event: MouseEvent) => {
         // Pozycja myszki względem przeglądarki
@@ -59,8 +65,12 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
 
             setClickPositionDiv({ x: clickX, y: clickY });
 
-            setDotYPosition(clickX);
-            setShowDot(true);
+            const newButton: Button = {
+                id: Date.now().toString(),
+                x: clickX,
+            };
+
+            setButtons((prevButton) => [...prevButton, newButton]);
 
             // OBLICZENIE POZYCJI W PROCENTACH
             const clickXPercent = (clickX / rect.width) * 100;
@@ -77,24 +87,10 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
     const newButtonStyle: React.CSSProperties = {
         position: 'absolute',
         transform: 'translateX(-50%)',
-        left: dotYPosition !== null ? `${dotYPosition}px` : '0',
     };
 
     return(
         <div className={`${styles.color_bar_container}`}>
-            <div className={`${styles.color_bar_buttons}`}>
-            
-            </div>
-            <div 
-                ref={divRef}
-                className={`${styles.color_bar_main}`}
-                style={{
-                    background: `linear-gradient(${currentPosition}deg, ${button1Color} 0%, ${button2Color} 100%)`
-                }}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                onClick={handleClick}
-            >
                 <button 
                     style={{
                         backgroundColor: button1Color
@@ -110,10 +106,28 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                     onClick={() => onButtonClick('button2')}
                     className={`${styles.button_2} ${styles.button}`}
                 >
-                </button>
-                {showDot && dotYPosition !== null && (
-                    <button style={newButtonStyle} className={`${styles.button}`}></button>
-                )}
+                </button>            
+            <div 
+                ref={divRef}
+                className={`${styles.color_bar_main}`}
+                style={{
+                    background: `linear-gradient(${currentPosition}deg, ${button1Color} 0%, ${button2Color} 100%)`
+                }}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleClick}
+            >
+            {buttons.map((button) => (
+                <button
+                    key={button.id}
+                    style={{
+                    ...newButtonStyle,
+                    left: `${button.x}px`,
+                        
+                    }}
+                    className={`${styles.button}`}
+                ></button>
+            ))}
             </div>
         </div>
     );
