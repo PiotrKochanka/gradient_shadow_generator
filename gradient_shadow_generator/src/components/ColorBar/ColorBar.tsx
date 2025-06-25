@@ -1,5 +1,6 @@
-import React, { useState, MouseEvent, useRef } from 'react';
+import React, { useState, MouseEvent, useRef, useEffect, } from 'react';
 import styles from './ColorBar.module.css';
+import html2canvas from 'html2canvas';
 
 type ActiveButton = 'button1' | 'button2' | null;
 
@@ -19,8 +20,7 @@ interface MousePosition {
 interface Button {
   id: string; // Unikalne ID, potrzebne dla klucza React (key prop)
   x: number;   // Pozycja X kropki
-  // Jeśli chcesz też pozycjonować na Y w przyszłości:
-  // y: number;
+  color: string;
 }
 
 interface ClickPositionPercent {
@@ -34,6 +34,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
     const divRef = useRef<HTMLDivElement>(null);
     const [clickPositionPercent, setClickPositionPercent] = useState<ClickPositionPercent>({ xPercent: 0 });
     const [buttons, setButtons] = useState<Button[]>([]);
+    const [clickedColor, setClickedColor] = useState<string | null>(null);
 
     const handleMouseMove = (event: MouseEvent) => {
         // Pozycja myszki względem przeglądarki
@@ -57,7 +58,52 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
         setMousePositionDiv({ x: 0, y: 0 });
     }
 
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+        const divElement = divRef.current;
+
+        if (!divElement) {
+            return;
+        }
+
+        let newButtonColor: string = '#FFFFFF'; // Kolor domyślny
+
+        try {
+            // 1. Zrenderuj diva z gradientem na tymczasowym canvasie
+            const canvas = await html2canvas(divElement, { useCORS: true, logging: false });
+
+            // 2. Pobierz kontekst 2D z wygenerowanego canvasa
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Nie udało się uzyskać kontekstu 2D canvasa.');
+                return;
+            }
+            // 3. Oblicz współrzędne kliknięcia względem samego diva
+            const rect = divElement.getBoundingClientRect();
+            const clickX = event.clientX - rect.left; // Współrzędna X kliknięcia wewnątrz diva
+            const clickY = event.clientY - rect.top;  // Współrzędna Y kliknięcia wewnątrz diva
+
+            // Sprawdź, czy współrzędne są w granicach canvasa
+            if (clickX < 0 || clickY < 0 || clickX >= canvas.width || clickY >= canvas.height) {
+                console.warn('Kliknięcie poza obszarem renderowanego canvasa. Spróbuj kliknąć wewnątrz diva.');
+                return;
+            }
+
+            // 4. Pobierz dane piksela z canvasa dla klikniętych współrzędnych
+            const pixelData = ctx.getImageData(clickX, clickY, 1, 1).data;
+
+            // pixelData zawiera tablicę [R, G, B, A] dla piksela
+            const r = pixelData[0];
+            const g = pixelData[1];
+            const b = pixelData[2];
+            // const a = pixelData[3]; // Wartość alfa (przezroczystość)
+
+            newButtonColor = `rgb(${r}, ${g}, ${b})`;
+            setClickedColor(newButtonColor); // Zapisz pobrany kolor
+
+        } catch (error) {
+            console.error("Błąd podczas renderowania div'a na canvasie lub pobierania koloru:", error);
+        }
+
         if(divRef.current) {
             const rect = divRef.current.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
@@ -68,17 +114,14 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             const newButton: Button = {
                 id: Date.now().toString(),
                 x: clickX,
+                color: newButtonColor,
             };
 
             setButtons((prevButton) => [...prevButton, newButton]);
 
             // OBLICZENIE POZYCJI W PROCENTACH
             const clickXPercent = (clickX / rect.width) * 100;
-
             setClickPositionPercent({ xPercent: clickXPercent });
-
-            console.log(`kliknięto: x: ${clickX}`);
-            console.log(`Kliknięto w diva (%): X: ${clickXPercent.toFixed(2)}%`);
         } else {
             console.log("divRef.current JEST NULL!");
         }
@@ -121,9 +164,9 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                 <button
                     key={button.id}
                     style={{
-                    ...newButtonStyle,
-                    left: `${button.x}px`,
-                        
+                        ...newButtonStyle,
+                        left: `${button.x}px`,
+                        background: button.color
                     }}
                     className={`${styles.button}`}
                 ></button>
