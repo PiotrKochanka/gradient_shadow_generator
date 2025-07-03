@@ -10,6 +10,7 @@ interface ColorBarProps {
     onButtonClick: (buttonId: ActiveButton) => void;
     activeButtonId: ActiveButton;
     currentPosition: number;
+    percent: number;
 }
 
 interface MousePosition {
@@ -27,7 +28,7 @@ interface ClickPositionPercent {
     xPercent: number;
 }
 
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, percent }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
@@ -96,6 +97,10 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             const g = pixelData[1];
             const b = pixelData[2];
             // const a = pixelData[3]; // Wartość alfa (przezroczystość)
+
+            // OBLICZENIE POZYCJI W PROCENTACH
+            percent = (clickX / rect.width) * 100;
+            console.log(percent);
 
             newButtonColor = `rgb(${r}, ${g}, ${b})`;
             setClickedColor(newButtonColor); // Zapisz pobrany kolor

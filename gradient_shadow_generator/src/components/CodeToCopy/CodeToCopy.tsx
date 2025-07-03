@@ -5,9 +5,10 @@ interface ColorBarProps {
     button1Color: string;
     button2Color: string;
     currentPosition: number;
+    percent: number;
 }
 
-const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition }) => {
+const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, percent }) => {
     return(
         <div className={`${styles.code_container}`}>
             <h2>Kod do skopiowania</h2>
