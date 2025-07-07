@@ -12,11 +12,12 @@ interface AppProps {
 }
 
 function App() {
+  const [buttonColor, setButtonColor] = useState<string>('');
   const [button1Color, setButton1Color] = useState<string>('#808080');
   const [button2Color, setButton2Color] = useState<string>('#0000FF');
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
   const [currentNumber, setCurrentNumber] = useState<number>(90);
-  const [percent, setPercent] = useState<number>(0);
+  const [buttonPercent, setButtonPercent] = useState<number>(0);
 
   // Przypisywanie koloru dla "pobiernika"
   const handleColorPickerChange = (newColor: string) => {
@@ -25,6 +26,10 @@ function App() {
     } else if(activeButton === 'button2') {
       setButton2Color(newColor);
     }
+  };
+
+  const handleNewButtonColor = (color: string) => {
+    setButtonColor(color);
   };
 
   // Funkcja służąca do przypisania id po kliknięciu w dany przycisk
@@ -43,9 +48,9 @@ function App() {
       setCurrentNumber(newNumber);
   };
 
-  const handlePercentUpdate = (newPercent: number) => {
-    setPercent(newPercent);
-  }
+  const handleNewButtonPercent = (percent: number) => {
+    setButtonPercent(percent);
+  };
 
   // Domyślny kontener
   return (
@@ -64,7 +69,8 @@ function App() {
           onButtonClick={handleColorBarButtonClick}
           activeButtonId={activeButton}
           currentPosition={currentNumber}
-          percent={percent}
+          setNumberPercent={handleNewButtonPercent}
+          onNewButtonColorGenerated={handleNewButtonColor}
         />
         <br />
         <InclinedWheel 
@@ -75,7 +81,8 @@ function App() {
           button1Color={button1Color}
           button2Color={button2Color}
           currentPosition={currentNumber}
-          percent={percent}
+          percent={buttonPercent}
+          color={buttonColor}
         />
       </div>
     </div>

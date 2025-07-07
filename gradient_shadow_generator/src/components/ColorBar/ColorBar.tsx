@@ -10,7 +10,8 @@ interface ColorBarProps {
     onButtonClick: (buttonId: ActiveButton) => void;
     activeButtonId: ActiveButton;
     currentPosition: number;
-    percent: number;
+    setNumberPercent: (currentPercent: number) => void;
+    onNewButtonColorGenerated: (color: string) => void;
 }
 
 interface MousePosition {
@@ -28,7 +29,7 @@ interface ClickPositionPercent {
     xPercent: number;
 }
 
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, percent }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
@@ -99,14 +100,17 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             // const a = pixelData[3]; // Wartość alfa (przezroczystość)
 
             // OBLICZENIE POZYCJI W PROCENTACH
-            percent = (clickX / rect.width) * 100;
-            console.log(percent);
+            const newPercent = Math.round((clickX / rect.width) * 100);
+            setNumberPercent(newPercent);
 
             newButtonColor = `rgb(${r}, ${g}, ${b})`;
             setClickedColor(newButtonColor); // Zapisz pobrany kolor
 
+            onNewButtonColorGenerated(newButtonColor);
+
         } catch (error) {
             console.error("Błąd podczas renderowania div'a na canvasie lub pobierania koloru:", error);
+            onNewButtonColorGenerated(newButtonColor);
         }
 
         if(divRef.current) {
@@ -123,10 +127,6 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             };
 
             setButtons((prevButton) => [...prevButton, newButton]);
-
-            // OBLICZENIE POZYCJI W PROCENTACH
-            const clickXPercent = (clickX / rect.width) * 100;
-            setClickPositionPercent({ xPercent: clickXPercent });
         } else {
             console.log("divRef.current JEST NULL!");
         }

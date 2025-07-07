@@ -5,16 +5,27 @@ interface ColorBarProps {
     button1Color: string;
     button2Color: string;
     currentPosition: number;
+    color: string;
     percent: number;
 }
 
-const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, percent }) => {
+const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, color, percent }) => {
+    if (!color) {
+        return null; // Nie renderuj nic, jeśli kolor nie został jeszcze ustawiony
+    }
+
+    if (percent === null) {
+        return null; 
+    }
+
+    const newButtonParameters = `${color} ${percent}%`;
+
     return(
         <div className={`${styles.code_container}`}>
             <h2>Kod do skopiowania</h2>
             <div className={`${styles.code_bar}`}>
                 <span>
-                    background: linear-gradient({currentPosition}deg, {button1Color} 0%, {button2Color} 100%);
+                    background: linear-gradient({currentPosition}deg, {button1Color} 0%, {newButtonParameters}, {button2Color} 100%);
                 </span>
             </div>
         </div>
