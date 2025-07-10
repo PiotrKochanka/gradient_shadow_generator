@@ -12,6 +12,7 @@ interface ColorBarProps {
     currentPosition: number;
     setNumberPercent: (currentPercent: number) => void;
     onNewButtonColorGenerated: (color: string) => void;
+    onAddGradientStop: (color: string, percent: number) => void;
 }
 
 interface MousePosition {
@@ -29,7 +30,7 @@ interface ClickPositionPercent {
     xPercent: number;
 }
 
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated, onAddGradientStop }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
@@ -107,6 +108,8 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             setClickedColor(newButtonColor); // Zapisz pobrany kolor
 
             onNewButtonColorGenerated(newButtonColor);
+
+            onAddGradientStop(newButtonColor, newPercent);
 
         } catch (error) {
             console.error("Błąd podczas renderowania div'a na canvasie lub pobierania koloru:", error);

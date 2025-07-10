@@ -11,6 +11,11 @@ interface AppProps {
   initialAppColor?: string;
 }
 
+export interface GradientStop {
+  color: string;
+  percent: number;
+}
+
 function App() {
   const [buttonColor, setButtonColor] = useState<string>('');
   const [button1Color, setButton1Color] = useState<string>('#808080');
@@ -18,6 +23,7 @@ function App() {
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
   const [currentNumber, setCurrentNumber] = useState<number>(90);
   const [buttonPercent, setButtonPercent] = useState<number>(0);
+  const [dynamicGradientStops, setDynamicGradientStops] = useState<GradientStop[]>([]);
 
   // Przypisywanie koloru dla "pobiernika"
   const handleColorPickerChange = (newColor: string) => {
@@ -27,6 +33,10 @@ function App() {
       setButton2Color(newColor);
     }
   };
+
+  const handleAddDynamicGradientStop = (color: string, percent: number) => {
+    setDynamicGradientStops(prevStops => [...prevStops, { color, percent }]);
+  }
 
   const handleNewButtonColor = (color: string) => {
     setButtonColor(color);
@@ -48,9 +58,6 @@ function App() {
       setCurrentNumber(newNumber);
   };
 
-  const handleNewButtonPercent = (percent: number) => {
-    setButtonPercent(percent);
-  };
 
   // Domyślny kontener
   return (
@@ -69,7 +76,8 @@ function App() {
           onButtonClick={handleColorBarButtonClick}
           activeButtonId={activeButton}
           currentPosition={currentNumber}
-          setNumberPercent={handleNewButtonPercent}
+          onAddGradientStop={handleAddDynamicGradientStop}
+          setNumberPercent={setButtonPercent}
           onNewButtonColorGenerated={handleNewButtonColor}
         />
         <br />
@@ -81,8 +89,7 @@ function App() {
           button1Color={button1Color}
           button2Color={button2Color}
           currentPosition={currentNumber}
-          percent={buttonPercent}
-          color={buttonColor}
+          dynamicStops={dynamicGradientStops}
         />
       </div>
     </div>
