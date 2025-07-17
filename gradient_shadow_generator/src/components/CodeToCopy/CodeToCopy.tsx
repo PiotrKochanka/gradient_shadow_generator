@@ -6,7 +6,7 @@ interface ColorBarProps {
     button1Color: string;
     button2Color: string;
     currentPosition: number;    
-    dynamicStops: GradientStop[];
+    gradientString: string;
 }
 
 interface Parameter {
@@ -15,26 +15,15 @@ interface Parameter {
 }
 
 
-const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, dynamicStops }) => {
+const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, gradientString }) => {
 
-    const dynamicGradientStopsString = dynamicStops
-        .map(p => `${p.color} ${p.percent}%`)
-        .join(', ');
-
-    let fullGradientString = `${button1Color} 0%`;
-
-    if (dynamicGradientStopsString) { // Dodaj dynamiczne przystanki tylko jeśli istnieją
-        fullGradientString += `, ${dynamicGradientStopsString}`;
-    }
-
-    fullGradientString += `, ${button2Color} 100%`;
 
     return(
         <div className={`${styles.code_container}`}>
             <h2>Kod do skopiowania</h2>
             <div className={`${styles.code_bar}`}>
                 <span>
-                    background: `linear-gradient(${currentPosition}deg, ${fullGradientString})`;
+                    background: `linear-gradient({currentPosition}deg, {gradientString})`;
                 </span>
             </div>
         </div>

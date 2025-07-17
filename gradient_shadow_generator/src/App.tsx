@@ -58,6 +58,20 @@ function App() {
       setCurrentNumber(newNumber);
   };
 
+  const dynamicGradientStopsString = dynamicGradientStops
+    .map(p => `${p.color} ${p.percent}%`)
+    .join(', ');
+
+
+  let fullGradientString = `${button1Color} 0%`;
+
+  
+  if (dynamicGradientStopsString) { // Dodaj dynamiczne przystanki tylko jeśli istnieją
+      fullGradientString += `, ${dynamicGradientStopsString}`;
+  }
+
+  fullGradientString += `, ${button2Color} 100%`;
+
 
   // Domyślny kontener
   return (
@@ -79,6 +93,7 @@ function App() {
           onAddGradientStop={handleAddDynamicGradientStop}
           setNumberPercent={setButtonPercent}
           onNewButtonColorGenerated={handleNewButtonColor}
+          gradientString={fullGradientString}
         />
         <br />
         <InclinedWheel 
@@ -89,7 +104,7 @@ function App() {
           button1Color={button1Color}
           button2Color={button2Color}
           currentPosition={currentNumber}
-          dynamicStops={dynamicGradientStops}
+          gradientString={fullGradientString}
         />
       </div>
     </div>

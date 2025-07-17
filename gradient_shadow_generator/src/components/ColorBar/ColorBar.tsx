@@ -13,6 +13,7 @@ interface ColorBarProps {
     setNumberPercent: (currentPercent: number) => void;
     onNewButtonColorGenerated: (color: string) => void;
     onAddGradientStop: (color: string, percent: number) => void;
+    gradientString: string;
 }
 
 interface MousePosition {
@@ -30,7 +31,7 @@ interface ClickPositionPercent {
     xPercent: number;
 }
 
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated, onAddGradientStop }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated, onAddGradientStop, gradientString }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
     const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
@@ -162,7 +163,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                 ref={divRef}
                 className={`${styles.color_bar_main}`}
                 style={{
-                    background: `linear-gradient(${currentPosition}deg, ${button1Color} 0%, ${button2Color} 100%)`
+                    background: `linear-gradient(${currentPosition}deg, ${gradientString})`
                 }}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
