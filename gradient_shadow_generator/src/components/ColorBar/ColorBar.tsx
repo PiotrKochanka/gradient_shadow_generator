@@ -1,8 +1,15 @@
-import React, { useState, MouseEvent, useRef, useEffect, } from 'react';
+import React, { useState, MouseEvent, useRef } from 'react';
 import styles from './ColorBar.module.css';
 import html2canvas from 'html2canvas';
 
-type ActiveButton = 'button1' | 'button2' | null;
+// Zaktualizowany typ ActiveButton
+type ActiveButton = 'button1' | 'button2' | 'dynamic' | null;
+
+// Interfejs GradientStop zdefiniowany w App.tsx jest tutaj potrzebny
+export interface GradientStop {
+    color: string;
+    percent: number;
+}
 
 interface ColorBarProps {
     button1Color: string;
@@ -14,6 +21,8 @@ interface ColorBarProps {
     onNewButtonColorGenerated: (color: string) => void;
     onAddGradientStop: (color: string, percent: number) => void;
     gradientString: string;
+    dynamicGradientStops: GradientStop[]; // Nowa właściwość: tablica dynamicznych przystanków
+    onDynamicStopClick: (index: number, color: string) => void; // Nowa właściwość: funkcja do obsługi kliknięcia na dynamiczny przycisk
 }
 
 interface MousePosition {
@@ -21,33 +30,29 @@ interface MousePosition {
     y: number;
 }
 
-interface Button {
-  id: string; // Unikalne ID, potrzebne dla klucza React (key prop)
-  x: number;   // Pozycja X kropki
-  color: string;
-}
-
-interface ClickPositionPercent {
-    xPercent: number;
-}
-
-const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButtonClick, activeButtonId, currentPosition, setNumberPercent, onNewButtonColorGenerated, onAddGradientStop, gradientString }) => {
+const ColorBar: React.FC<ColorBarProps> = ({ 
+    button1Color, 
+    button2Color, 
+    onButtonClick, 
+    activeButtonId, 
+    currentPosition, 
+    setNumberPercent, 
+    onNewButtonColorGenerated, 
+    onAddGradientStop, 
+    gradientString,
+    dynamicGradientStops, // Destrukturyzacja nowej właściwości
+    onDynamicStopClick // Destrukturyzacja nowej właściwości
+}) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
-    const [clickPositionDiv, setClickPositionDiv] = useState<MousePosition>({ x: 0, y: 0 });
     const divRef = useRef<HTMLDivElement>(null);
-    const [clickPositionPercent, setClickPositionPercent] = useState<ClickPositionPercent>({ xPercent: 0 });
-    const [buttons, setButtons] = useState<Button[]>([]);
-    const [clickedColor, setClickedColor] = useState<string | null>(null);
 
     const handleMouseMove = (event: MouseEvent) => {
-        // Pozycja myszki względem przeglądarki
         setMousePositionWindow({
             x: event.clientX,
             y: event.clientY,
         });
 
-        // Pozycja myszki względem div'a
         if(divRef.current) {
             const rect = divRef.current.getBoundingClientRect();
             setMousePositionDiv({
@@ -69,70 +74,42 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
             return;
         }
 
-        let newButtonColor: string = '#FFFFFF'; // Kolor domyślny
+        let newButtonColor: string = '#FFFFFF'; 
 
         try {
-            // 1. Zrenderuj diva z gradientem na tymczasowym canvasie
             const canvas = await html2canvas(divElement, { useCORS: true, logging: false });
-
-            // 2. Pobierz kontekst 2D z wygenerowanego canvasa
             const ctx = canvas.getContext('2d');
             if (!ctx) {
                 console.error('Nie udało się uzyskać kontekstu 2D canvasa.');
                 return;
             }
-            // 3. Oblicz współrzędne kliknięcia względem samego diva
             const rect = divElement.getBoundingClientRect();
-            const clickX = event.clientX - rect.left; // Współrzędna X kliknięcia wewnątrz diva
-            const clickY = event.clientY - rect.top;  // Współrzędna Y kliknięcia wewnątrz diva
+            const clickX = event.clientX - rect.left; 
+            const clickY = event.clientY - rect.top;  
 
-            // Sprawdź, czy współrzędne są w granicach canvasa
             if (clickX < 0 || clickY < 0 || clickX >= canvas.width || clickY >= canvas.height) {
                 console.warn('Kliknięcie poza obszarem renderowanego canvasa. Spróbuj kliknąć wewnątrz diva.');
                 return;
             }
 
-            // 4. Pobierz dane piksela z canvasa dla klikniętych współrzędnych
             const pixelData = ctx.getImageData(clickX, clickY, 1, 1).data;
 
-            // pixelData zawiera tablicę [R, G, B, A] dla piksela
             const r = pixelData[0];
             const g = pixelData[1];
             const b = pixelData[2];
-            // const a = pixelData[3]; // Wartość alfa (przezroczystość)
 
-            // OBLICZENIE POZYCJI W PROCENTACH
             const newPercent = Math.round((clickX / rect.width) * 100);
             setNumberPercent(newPercent);
 
             newButtonColor = `rgb(${r}, ${g}, ${b})`;
-            setClickedColor(newButtonColor); // Zapisz pobrany kolor
-
-            onNewButtonColorGenerated(newButtonColor);
-
+            
+            // Wywołaj onAddGradientStop, aby dodać nowy przystanek dynamiczny w App.tsx
             onAddGradientStop(newButtonColor, newPercent);
-
+            onNewButtonColorGenerated(newButtonColor); // Ustaw ten kolor jako początkowo wybrany
+            onButtonClick('dynamic'); // Ustaw aktywny przycisk na 'dynamic'
         } catch (error) {
             console.error("Błąd podczas renderowania div'a na canvasie lub pobierania koloru:", error);
             onNewButtonColorGenerated(newButtonColor);
-        }
-
-        if(divRef.current) {
-            const rect = divRef.current.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
-
-            setClickPositionDiv({ x: clickX, y: clickY });
-
-            const newButton: Button = {
-                id: Date.now().toString(),
-                x: clickX,
-                color: newButtonColor,
-            };
-
-            setButtons((prevButton) => [...prevButton, newButton]);
-        } else {
-            console.log("divRef.current JEST NULL!");
         }
     }
 
@@ -148,7 +125,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                         backgroundColor: button1Color
                     }}
                     onClick={() => onButtonClick('button1')}
-                    className={`${styles.button_1} ${styles.button}`}
+                    className={`${styles.button_1} ${styles.button} ${activeButtonId === 'button1' ? styles.active : ''}`}
                 >
                 </button>
                 <button 
@@ -156,7 +133,7 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                         backgroundColor: button2Color
                     }}
                     onClick={() => onButtonClick('button2')}
-                    className={`${styles.button_2} ${styles.button}`}
+                    className={`${styles.button_2} ${styles.button} ${activeButtonId === 'button2' ? styles.active : ''}`}
                 >
                 </button>            
             <div 
@@ -169,15 +146,20 @@ const ColorBar: React.FC<ColorBarProps> = ({ button1Color, button2Color, onButto
                 onMouseLeave={handleMouseLeave}
                 onClick={handleClick}
             >
-            {buttons.map((button) => (
+            {/* Mapowanie dynamicznych przystanków gradientu */}
+            {dynamicGradientStops.map((stop, index) => (
                 <button
-                    key={button.id}
+                    key={index} // Używamy indeksu jako klucza, lub bardziej unikalnego ID, jeśli planujesz zmieniać kolejność/usuwać
                     style={{
                         ...newButtonStyle,
-                        left: `${button.x}px`,
-                        background: button.color
+                        left: `${stop.percent}%`, // Pozycjonowanie oparte na procencie
+                        background: stop.color
                     }}
-                    className={`${styles.button}`}
+                    className={`${styles.button} ${activeButtonId === 'dynamic' && stop.percent === dynamicGradientStops[index].percent ? styles.active : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Zapobiega wywołaniu handleClick diva
+                        onDynamicStopClick(index, stop.color); // Wywołaj nową funkcję z indeksem i kolorem
+                    }}
                 ></button>
             ))}
             </div>

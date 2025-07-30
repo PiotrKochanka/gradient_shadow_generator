@@ -5,7 +5,8 @@ import ColorBar from './components/ColorBar/ColorBar';
 import InclinedWheel from './components/InclinedWheel/InclinedWheel';
 import CodeToCopy from './components/CodeToCopy/CodeToCopy';
 
-type ActiveButton = 'button1' | 'button2' | null;
+// Zaktualizowany typ ActiveButton
+type ActiveButton = 'button1' | 'button2' | 'dynamic' | null;
 
 interface AppProps {
   initialAppColor?: string;
@@ -24,6 +25,7 @@ function App() {
   const [currentNumber, setCurrentNumber] = useState<number>(90);
   const [buttonPercent, setButtonPercent] = useState<number>(0);
   const [dynamicGradientStops, setDynamicGradientStops] = useState<GradientStop[]>([]);
+  const [activeDynamicStopIndex, setActiveDynamicStopIndex] = useState<number | null>(null); // Nowy stan do śledzenia aktywnego dynamicznego przystanku
 
   // Przypisywanie koloru dla "pobiernika"
   const handleColorPickerChange = (newColor: string) => {
@@ -31,11 +33,37 @@ function App() {
       setButton1Color(newColor);
     } else if(activeButton === 'button2') {
       setButton2Color(newColor);
+    } else if (activeButton === 'dynamic' && activeDynamicStopIndex !== null) {
+        // Aktualizacja koloru aktywnego dynamicznego przystanku gradientu
+        setDynamicGradientStops(prevStops => 
+            prevStops.map((stop, index) => 
+                index === activeDynamicStopIndex ? { ...stop, color: newColor } : stop
+            )
+        );
     }
   };
 
   const handleAddDynamicGradientStop = (color: string, percent: number) => {
-    setDynamicGradientStops(prevStops => [...prevStops, { color, percent }]);
+    // Sprawdź, czy przystanek z tym samym procentem już istnieje, jeśli tak, zaktualizuj go
+    // Ma to na celu zapobieganie wielu przystankom w dokładnie tej samej pozycji przy wielokrotnym klikaniu
+    const existingIndex = dynamicGradientStops.findIndex(stop => stop.percent === percent);
+    if (existingIndex !== -1) {
+        setDynamicGradientStops(prevStops => 
+            prevStops.map((stop, index) => 
+                index === existingIndex ? { ...stop, color: color } : stop
+            )
+        );
+        setActiveDynamicStopIndex(existingIndex);
+    } else {
+        setDynamicGradientStops(prevStops => {
+            const newStops = [...prevStops, { color, percent }];
+            // Posortuj przystanki według procentów, aby gradient był wyświetlany prawidłowo
+            newStops.sort((a, b) => a.percent - b.percent);
+            // Ustaw indeks aktywnego przystanku na nowo dodany/zaktualizowany
+            setActiveDynamicStopIndex(newStops.findIndex(stop => stop.color === color && stop.percent === percent));
+            return newStops;
+        });
+    }
   }
 
   const handleNewButtonColor = (color: string) => {
@@ -45,6 +73,18 @@ function App() {
   // Funkcja służąca do przypisania id po kliknięciu w dany przycisk
   const handleColorBarButtonClick = (buttonId: ActiveButton) => {
     setActiveButton(buttonId);
+    // Zresetuj indeks aktywnego dynamicznego przystanku, gdy kliknięto stały przycisk
+    if (buttonId === 'button1' || buttonId === 'button2') {
+        setActiveDynamicStopIndex(null);
+    }
+  };
+
+  // Nowa funkcja do obsługi kliknięcia na dynamiczny przystanek
+  const handleDynamicStopClick = (index: number, color: string) => {
+    setActiveButton('dynamic');
+    setActiveDynamicStopIndex(index);
+    // Ustaw color picker na kolor klikniętego dynamicznego przystanku
+    handleNewButtonColor(color); 
   };
 
   // Wyświetlanie koloru w "pobierniku" dla danego przycisku
@@ -52,13 +92,18 @@ function App() {
     ? button1Color
     : activeButton === 'button2'
       ? button2Color 
-      : '#CCCCCC' // Domyślny kolor
+      : (activeButton === 'dynamic' && activeDynamicStopIndex !== null)
+        ? dynamicGradientStops[activeDynamicStopIndex]?.color // Wyświetl kolor aktywnego dynamicznego przystanku
+        : '#CCCCCC' // Domyślny kolor
 
   const handleNumberUpdate = (newNumber: number) => {
       setCurrentNumber(newNumber);
   };
 
-  const dynamicGradientStopsString = dynamicGradientStops
+  // Upewnij się, że dynamicGradientStops są zawsze posortowane według procentów przed wygenerowaniem ciągu
+  const sortedDynamicGradientStops = [...dynamicGradientStops].sort((a, b) => a.percent - b.percent);
+
+  const dynamicGradientStopsString = sortedDynamicGradientStops
     .map(p => `${p.color} ${p.percent}%`)
     .join(', ');
 
@@ -94,6 +139,8 @@ function App() {
           setNumberPercent={setButtonPercent}
           onNewButtonColorGenerated={handleNewButtonColor}
           gradientString={fullGradientString}
+          dynamicGradientStops={sortedDynamicGradientStops} // Przekaż dynamiczne przystanki
+          onDynamicStopClick={handleDynamicStopClick} // Przekaż nową funkcję
         />
         <br />
         <InclinedWheel 
