@@ -1,5 +1,6 @@
 .code_bar{
-    border: 1px solid black;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 0.5rem;
     width: 400px;
     height: 200px;
     margin: 0 auto;
