@@ -3,7 +3,24 @@
     border-radius: 0.5rem;
     width: 400px;
     height: 200px;
-    margin: 0 auto;
+    margin: 32px auto 0px;
     padding: 8px 12px;
     text-align: left;
+}
+.code_bar_copy{
+    width: 100%;
+    border-bottom: 1px solid rgb(221, 221, 221);
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+.code_bar_copy > button{
+    border: 0px none transparent;
+    background-color: transparent;
+    padding: 8px 4px;
+    cursor: pointer;
+    color: rgb(97, 97, 97);
+}
+.code_bar_copy > button:hover{
+    opacity: 0.6;
 }

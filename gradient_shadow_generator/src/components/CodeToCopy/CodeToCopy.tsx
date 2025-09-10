@@ -16,15 +16,17 @@ interface Parameter {
 
 
 const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, gradientString }) => {
-
+    const [codeToCopy, setCodeToCopy] = useState<string>(String());
 
     return(
         <div className={`${styles.code_container}`}>
-            <h2>Kod do skopiowania</h2>
             <div className={`${styles.code_bar}`}>
+                <div className={`${styles.code_bar_copy}`}>
+                    <button>Kopiuj</button>
+                </div>
                 <span>
                     background: `linear-gradient({currentPosition}deg, {gradientString})`;
-                </span>
+                </span>    
             </div>
         </div>
     );
