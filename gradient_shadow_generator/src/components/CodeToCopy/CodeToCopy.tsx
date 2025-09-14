@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './CodeToCopy.module.css';
 import { GradientStop } from '../../App';
 
@@ -16,16 +16,31 @@ interface Parameter {
 
 
 const CodeToCopy: React.FC<ColorBarProps> = ({ button1Color, button2Color, currentPosition, gradientString }) => {
-    const [codeToCopy, setCodeToCopy] = useState<string>(String());
+    const [cssCode, setCssCode] = useState("");
+
+    // Aktualizacja kodu CSS przy zmianie propsów
+    useEffect(() => {
+        const newCode = `background: linear-gradient(${currentPosition}deg, ${gradientString});`;
+        setCssCode(newCode);
+    }, [currentPosition, gradientString]);
+
+    // Kopiowanie kodu do schowka
+    const handleCodeToCopy = () => {
+        navigator.clipboard.writeText(cssCode)
+            .then(() => alert("Skopiowano do schowka"))
+            .catch(err => alert("Błąd kopiowania"));
+    }
 
     return(
         <div className={`${styles.code_container}`}>
             <div className={`${styles.code_bar}`}>
                 <div className={`${styles.code_bar_copy}`}>
-                    <button>Kopiuj</button>
+                    <button
+                        onClick={handleCodeToCopy}
+                    >Kopiuj</button>
                 </div>
                 <span>
-                    background: `linear-gradient({currentPosition}deg, {gradientString})`;
+                    {cssCode}
                 </span>    
             </div>
         </div>
