@@ -139,8 +139,8 @@ function App() {
           setNumberPercent={setButtonPercent}
           onNewButtonColorGenerated={handleNewButtonColor}
           gradientString={fullGradientString}
-          dynamicGradientStops={sortedDynamicGradientStops} // Przekaż dynamiczne przystanki
-          onDynamicStopClick={handleDynamicStopClick} // Przekaż nową funkcję
+          dynamicGradientStops={sortedDynamicGradientStops}
+          onDynamicStopClick={handleDynamicStopClick}
         />
         <br />
         <InclinedWheel 
