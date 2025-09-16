@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { HashRouter as Router } from 'react-router-dom';
 import './App.css';
 import MyColorPicker from './components/MyColorPicker/MyColorPicker';
 import ColorBar from './components/ColorBar/ColorBar';
@@ -120,6 +121,7 @@ function App() {
 
   // Domyślny kontener
   return (
+    <Router>
     <div className="App">
       <div className="menu">
 
@@ -155,6 +157,7 @@ function App() {
         />
       </div>
     </div>
+    </Router>
   );
 }
 
