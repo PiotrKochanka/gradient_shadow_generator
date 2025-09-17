@@ -20,8 +20,8 @@ export interface GradientStop {
 
 function App() {
   const [buttonColor, setButtonColor] = useState<string>('');
-  const [button1Color, setButton1Color] = useState<string>('#808080');
-  const [button2Color, setButton2Color] = useState<string>('#0000FF');
+  const [button1Color, setButton1Color] = useState<string>('#FFFFFF');
+  const [button2Color, setButton2Color] = useState<string>('#000000');
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
   const [currentNumber, setCurrentNumber] = useState<number>(90);
   const [buttonPercent, setButtonPercent] = useState<number>(0);
@@ -95,7 +95,7 @@ function App() {
       ? button2Color 
       : (activeButton === 'dynamic' && activeDynamicStopIndex !== null)
         ? dynamicGradientStops[activeDynamicStopIndex]?.color // Wyświetl kolor aktywnego dynamicznego przystanku
-        : '#CCCCCC' // Domyślny kolor
+        : '#ffffff' // Domyślny kolor
 
   const handleNumberUpdate = (newNumber: number) => {
       setCurrentNumber(newNumber);
