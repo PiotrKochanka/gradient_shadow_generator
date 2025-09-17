@@ -1,0 +1,12 @@
+.refresh_button{
+    padding: 16px 32px;
+    margin: 40px 0px 0px 0px;
+    border: 1px solid rgb(226, 226, 226);
+    color: rgb(97, 97, 97);
+    background-color: transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+.refresh_button:hover{
+    opacity: 0.7;
+}

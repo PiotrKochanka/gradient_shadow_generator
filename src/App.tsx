@@ -5,6 +5,7 @@ import MyColorPicker from './components/MyColorPicker/MyColorPicker';
 import ColorBar from './components/ColorBar/ColorBar';
 import InclinedWheel from './components/InclinedWheel/InclinedWheel';
 import CodeToCopy from './components/CodeToCopy/CodeToCopy';
+import ResetButton from './components/ResetButton/ResetButton';
 
 // Zaktualizowany typ ActiveButton
 type ActiveButton = 'button1' | 'button2' | 'dynamic' | null;
@@ -155,6 +156,7 @@ function App() {
           currentPosition={currentNumber}
           gradientString={fullGradientString}
         />
+        <ResetButton />
       </div>
     </div>
     </Router>
