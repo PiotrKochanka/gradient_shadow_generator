@@ -119,6 +119,21 @@ function App() {
 
   fullGradientString += `, ${button2Color} 100%`;
 
+  const handleUpdateGradientStopPercent = (index: number, newPercent: number) => {
+      // Zapobiegamy wyjściu poza zakres 0-100%
+      const boundedPercent = Math.max(1, Math.min(99, newPercent));
+
+      setDynamicGradientStops(prevStops => {
+          // Zaktualizuj tylko procent dla przystanku o danym indeksie
+          const newStops = prevStops.map((stop, i) => 
+              i === index ? { ...stop, percent: boundedPercent } : stop
+          );
+          // Po aktualizacji, upewnij się, że lista jest posortowana,
+          // co jest kluczowe dla poprawnego generowania gradientu
+          return newStops.sort((a, b) => a.percent - b.percent);
+      });
+  };
+
 
   // Domyślny kontener
   return (
@@ -144,6 +159,7 @@ function App() {
           gradientString={fullGradientString}
           dynamicGradientStops={sortedDynamicGradientStops}
           onDynamicStopClick={handleDynamicStopClick}
+          onUpdateGradientStopPercent={handleUpdateGradientStopPercent} 
         />
         <br />
         <InclinedWheel 

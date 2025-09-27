@@ -1,4 +1,4 @@
-import React, { useState, MouseEvent, useRef } from 'react';
+import React, { useState, MouseEvent, useRef, useEffect, useCallback } from 'react';
 import styles from './ColorBar.module.css';
 import html2canvas from 'html2canvas';
 
@@ -21,8 +21,9 @@ interface ColorBarProps {
     onNewButtonColorGenerated: (color: string) => void;
     onAddGradientStop: (color: string, percent: number) => void;
     gradientString: string;
-    dynamicGradientStops: GradientStop[]; // Nowa właściwość: tablica dynamicznych przystanków
-    onDynamicStopClick: (index: number, color: string) => void; // Nowa właściwość: funkcja do obsługi kliknięcia na dynamiczny przycisk
+    dynamicGradientStops: GradientStop[];
+    onDynamicStopClick: (index: number, color: string) => void;
+    onUpdateGradientStopPercent: (index: number, newPercent: number) => void;
 }
 
 interface MousePosition {
@@ -40,19 +41,19 @@ const ColorBar: React.FC<ColorBarProps> = ({
     onNewButtonColorGenerated, 
     onAddGradientStop, 
     gradientString,
-    dynamicGradientStops, // Destrukturyzacja nowej właściwości
-    onDynamicStopClick // Destrukturyzacja nowej właściwości
+    dynamicGradientStops,
+    onDynamicStopClick,
+    onUpdateGradientStopPercent
 }) => {
     const [mousePositionWindow, setMousePositionWindow] = useState<MousePosition>({x: 0, y: 0});
     const [mousePositionDiv, setMousePositionDiv] = useState<MousePosition>({x: 0, y: 0});
+    const [isDragging, setIsDragging] = useState(false); // Stan przeciągania
+    const [draggingStopIndex, setDraggingStopIndex] = useState<number | null>(null); // Indeks przeciąganego przystanku
     const divRef = useRef<HTMLDivElement>(null);
 
+    // --- Obsługa Zdarzeń Myszowych (Podświetlanie/Pozycje) ---
     const handleMouseMove = (event: MouseEvent) => {
-        setMousePositionWindow({
-            x: event.clientX,
-            y: event.clientY,
-        });
-
+        setMousePositionWindow({ x: event.clientX, y: event.clientY });
         if(divRef.current) {
             const rect = divRef.current.getBoundingClientRect();
             setMousePositionDiv({
@@ -67,12 +68,15 @@ const ColorBar: React.FC<ColorBarProps> = ({
         setMousePositionDiv({ x: 0, y: 0 });
     }
 
+    // --- Obsługa Kliknięcia (Dodawanie Nowego Przystanku) ---
     const handleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
-        const divElement = divRef.current;
-
-        if (!divElement) {
+        if (isDragging) {
+            // Ignoruj kliknięcie, jeśli było częścią przeciągania
             return;
         }
+
+        const divElement = divRef.current;
+        if (!divElement) return;
 
         let newButtonColor: string = '#FFFFFF'; 
 
@@ -85,57 +89,119 @@ const ColorBar: React.FC<ColorBarProps> = ({
             }
             const rect = divElement.getBoundingClientRect();
             const clickX = event.clientX - rect.left; 
-            const clickY = event.clientY - rect.top;  
+            
+            // ... (reszta logiki pobierania koloru)
 
-            if (clickX < 0 || clickY < 0 || clickX >= canvas.width || clickY >= canvas.height) {
-                console.warn('Kliknięcie poza obszarem renderowanego canvasa. Spróbuj kliknąć wewnątrz diva.');
-                return;
-            }
-
-            const pixelData = ctx.getImageData(clickX, clickY, 1, 1).data;
+            const pixelData = ctx.getImageData(clickX, rect.height / 2, 1, 1).data; // Pobierz kolor ze środka paska
 
             const r = pixelData[0];
             const g = pixelData[1];
             const b = pixelData[2];
 
-            const newPercent = Math.round((clickX / rect.width) * 100);
+            const rawPercent = (clickX / rect.width) * 100;
+            // Ogranicz do 1-99, aby uniknąć kolizji z przyciskami 0% i 100%
+            const newPercent = Math.round(Math.max(1, Math.min(99, rawPercent)));
             setNumberPercent(newPercent);
 
             newButtonColor = `rgb(${r}, ${g}, ${b})`;
             
-            // Wywołaj onAddGradientStop, aby dodać nowy przystanek dynamiczny w App.tsx
+            // Dodaj nowy przystanek dynamiczny
             onAddGradientStop(newButtonColor, newPercent);
-            onNewButtonColorGenerated(newButtonColor); // Ustaw ten kolor jako początkowo wybrany
-            onButtonClick('dynamic'); // Ustaw aktywny przycisk na 'dynamic'
+            onNewButtonColorGenerated(newButtonColor);
+            onButtonClick('dynamic');
         } catch (error) {
             console.error("Błąd podczas renderowania div'a na canvasie lub pobierania koloru:", error);
             onNewButtonColorGenerated(newButtonColor);
         }
     }
 
+    // --- Obsługa Przeciągania Przycisków (Drag-and-Drop) ---
+    const handleMouseDown = (event: React.MouseEvent, index: number) => {
+        // Upewnij się, że nie jest to kliknięcie prawym przyciskiem
+        if (event.button !== 0) return; 
+
+        event.stopPropagation(); // Kluczowe, aby zapobiec handleClick diva
+        
+        setIsDragging(true);
+        setDraggingStopIndex(index);
+        
+        // Ustaw aktywny przycisk na "dynamic" i przekaż kolor
+        const stopColor = dynamicGradientStops[index].color;
+        onDynamicStopClick(index, stopColor);
+    };
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+        setDraggingStopIndex(null);
+    }, []);
+
+    const handleMouseMoveForDrag = useCallback((event: globalThis.MouseEvent) => {
+        if (!isDragging || draggingStopIndex === null || !divRef.current) {
+            return;
+        }
+
+        const divElement = divRef.current;
+        const rect = divElement.getBoundingClientRect();
+        
+        let newX = event.clientX - rect.left;
+
+        // Ograniczanie X do granic diva (0 do szerokości)
+        if (newX < 0) {
+            newX = 0;
+        } else if (newX > rect.width) {
+            newX = rect.width;
+        }
+
+        // Obliczanie nowego procentu (ograniczone do 1-99)
+        const rawPercent = (newX / rect.width) * 100;
+        const newPercent = Math.round(Math.max(1, Math.min(99, rawPercent)));
+
+        // Aktualizacja procentu w komponencie nadrzędnym
+        onUpdateGradientStopPercent(draggingStopIndex, newPercent);
+        setNumberPercent(newPercent);
+        
+    }, [isDragging, draggingStopIndex, onUpdateGradientStopPercent, setNumberPercent]);
+
+    // Dodanie globalnych event listenerów do obsługi `mousemove` i `mouseup` na całym dokumencie
+    useEffect(() => {
+        if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMoveForDrag);
+            document.addEventListener('mouseup', handleMouseUp);
+             // Opcjonalnie: Zmień kursor dla lepszego UX
+            document.body.style.cursor = 'grabbing';
+        } else {
+            document.removeEventListener('mousemove', handleMouseMoveForDrag);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'default';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMoveForDrag);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'default';
+        };
+    }, [isDragging, handleMouseMoveForDrag, handleMouseUp]);
+
+
     const newButtonStyle: React.CSSProperties = {
         position: 'absolute',
-        transform: 'translateX(-50%)',
+        // Użyj translateY(-50%) aby wycentrować button pionowo
     };
 
     return(
         <div className={`${styles.color_bar_container}`}>
-                <button 
-                    style={{
-                        backgroundColor: button1Color
-                    }}
-                    onClick={() => onButtonClick('button1')}
-                    className={`${styles.button_1} ${styles.button} ${activeButtonId === 'button1' ? styles.active : ''}`}
-                >
-                </button>
-                <button 
-                    style={{
-                        backgroundColor: button2Color
-                    }}
-                    onClick={() => onButtonClick('button2')}
-                    className={`${styles.button_2} ${styles.button} ${activeButtonId === 'button2' ? styles.active : ''}`}
-                >
-                </button>            
+            {/* Przycisk 1 (0%) */}
+            <button 
+                style={{ backgroundColor: button1Color }}
+                onClick={() => onButtonClick('button1')}
+                className={`${styles.button_1} ${styles.button} ${activeButtonId === 'button1' ? styles.active : ''}`}
+            ></button>
+            {/* Przycisk 2 (100%) */}
+            <button 
+                style={{ backgroundColor: button2Color }}
+                onClick={() => onButtonClick('button2')}
+                className={`${styles.button_2} ${styles.button} ${activeButtonId === 'button2' ? styles.active : ''}`}
+            ></button>            
             <div 
                 ref={divRef}
                 className={`${styles.color_bar_main}`}
@@ -147,20 +213,27 @@ const ColorBar: React.FC<ColorBarProps> = ({
                 onClick={handleClick}
             >
             {/* Mapowanie dynamicznych przystanków gradientu */}
-            {dynamicGradientStops.map((stop, index) => (
-                <button
-                    key={index} // Używamy indeksu jako klucza, lub bardziej unikalnego ID, jeśli planujesz zmieniać kolejność/usuwać
-                    style={{
-                        ...newButtonStyle,
-                        left: `${stop.percent}%`, // Pozycjonowanie oparte na procencie
-                        background: stop.color
-                    }}
-                    className={`${styles.button} ${activeButtonId === 'dynamic' && stop.percent === dynamicGradientStops[index].percent ? styles.active : ''}`}
-                    onClick={(e) => {
-                        e.stopPropagation(); // Zapobiega wywołaniu handleClick diva
-                        onDynamicStopClick(index, stop.color); // Wywołaj nową funkcję z indeksem i kolorem
-                    }}
-                ></button>
+            {dynamicGradientStops
+                .filter(stop => stop.percent > 0 && stop.percent < 100) // Filtrujemy, jeśli 0% i 100% są obsługiwane przez stałe buttony
+                .map((stop, index) => (
+                    <button
+                        key={index}
+                        style={{
+                            ...newButtonStyle,
+                            left: `${stop.percent}%`, 
+                            background: stop.color
+                        }}
+                        // 🔥 DODAJEMY onMouseDown, ABY WŁĄCZYĆ PRZECIĄGANIE 🔥
+                        onMouseDown={(e) => handleMouseDown(e, index)}
+                        className={`${styles.button} ${activeButtonId === 'dynamic' && (draggingStopIndex === index || (dynamicGradientStops[index].percent === stop.percent)) ? styles.active : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation(); // Zapobiega wywołaniu handleClick diva
+                            // Wywołaj onDynamicStopClick tylko jeśli nie było to przeciąganie
+                            if (draggingStopIndex === null && !isDragging) {
+                                onDynamicStopClick(index, stop.color);
+                            }
+                        }}
+                    ></button>
             ))}
             </div>
         </div>

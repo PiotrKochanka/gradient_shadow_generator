@@ -9,6 +9,8 @@
 .color_bar_main{
     height: 48px;
     width: 800px;
+    position: absolute;
+    top: 0px;
 }
 .color_bar_main > .button{
     height: 60px;
