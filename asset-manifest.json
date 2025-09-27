@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/gradient_shadow_generator/static/css/main.4f2d25d2.css",
-    "main.js": "/gradient_shadow_generator/static/js/main.05f1e048.js",
+    "main.css": "/gradient_shadow_generator/static/css/main.315fd95a.css",
+    "main.js": "/gradient_shadow_generator/static/js/main.3e0c6db0.js",
     "static/js/453.59fbf48a.chunk.js": "/gradient_shadow_generator/static/js/453.59fbf48a.chunk.js",
     "index.html": "/gradient_shadow_generator/index.html",
-    "main.4f2d25d2.css.map": "/gradient_shadow_generator/static/css/main.4f2d25d2.css.map",
-    "main.05f1e048.js.map": "/gradient_shadow_generator/static/js/main.05f1e048.js.map",
+    "main.315fd95a.css.map": "/gradient_shadow_generator/static/css/main.315fd95a.css.map",
+    "main.3e0c6db0.js.map": "/gradient_shadow_generator/static/js/main.3e0c6db0.js.map",
     "453.59fbf48a.chunk.js.map": "/gradient_shadow_generator/static/js/453.59fbf48a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4f2d25d2.css",
-    "static/js/main.05f1e048.js"
+    "static/css/main.315fd95a.css",
+    "static/js/main.3e0c6db0.js"
   ]
 }
